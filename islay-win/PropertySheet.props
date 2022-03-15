@@ -7,13 +7,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\3rdparty\implot;$(SolutionDir)..\3rdparty\imgui\examples\libs\gl3w;$(SolutionDir)..\3rdparty\imgui\examples;$(SolutionDir)..\3rdparty\imgui;$(SolutionDir)..\3rdparty\spdlog\include;$(SolutionDir)..\3rdparty\rapidjson\include;C:\opencv\mybuild\install\include;C:\eigen-3.4.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\3rdparty\implot;$(SolutionDir)..\3rdparty\imgui\examples\libs\gl3w;$(SolutionDir)..\3rdparty\imgui\examples;$(SolutionDir)..\3rdparty\imgui;$(SolutionDir)..\3rdparty\spdlog\include;$(SolutionDir)..\3rdparty\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\opencv\mybuild\install\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world331.lib;opencv_world331d.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

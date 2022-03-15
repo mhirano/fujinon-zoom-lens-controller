@@ -171,9 +171,9 @@ bool Application::run(){
         ImGui::NewFrame();
 
 // Dear ImGui demo
-        {
-            ImGui::ShowDemoWindow();
-        }
+        //{
+        //    ImGui::ShowDemoWindow();
+        //}
 
 
 // Commands
@@ -203,13 +203,26 @@ bool Application::run(){
             } else {
                 ImGui::Text("Worker: unknown");
             }
+
+			if (ImGui::Button("Tele")) {
+				auto md = appMsg->zlcMessenger->prepareMsg();
+				md->command.zoom[0] = 0xFF;
+				md->command.zoom[1] = 0xFF;
+				appMsg->zlcMessenger->send();
+
+			}
+			if (ImGui::Button("Wide")) {
+				auto md = appMsg->zlcMessenger->prepareMsg();
+				md->command.zoom[0] = 0x00;
+				md->command.zoom[1] = 0x00;
+				appMsg->zlcMessenger->send();
+			}
+
             if (ImGui::Button("Exit")){
-                done = true;
+				done = true;
             }
             ImGui::End();
         }
-
-
 
         /// Destroy OpenCV windows if exists
         if(selectedShowImageMode == SHOW_IMAGE_MODE::IMGUI) { /// Use ImGui
@@ -257,40 +270,40 @@ bool Application::run(){
             }
         }
 
-        {
-            static float xs1[1001], ys1[1001];
-            double DEMO_TIME = ImGui::GetTime();
-            for (int i = 0; i < 1001; ++i) {
-                xs1[i] = i * 0.001f;
-                ys1[i] = 0.5f + 0.5f * sinf(50 * (xs1[i] + (float)DEMO_TIME / 10));
-            }
-            static double xs2[11], ys2[11];
-            for (int i = 0; i < 11; ++i) {
-                xs2[i] = i * 0.1f;
-                ys2[i] = xs2[i] * xs2[i];
-            }
-            ImGui::Begin("Plot");
-            ImGui::BulletText("Anti-aliasing can be enabled from the plot's context menu (see Help).");
-            if (ImPlot::BeginPlot("Line Plot", "x", "f(x)")) {
-                ImPlot::PlotLine("sin(x)", xs1, ys1, 1001);
-                ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-                ImPlot::PlotLine("x^2", xs2, ys2, 11);
-                ImPlot::EndPlot();
-            }
-            ImGui::End();
-        }
+        //{
+        //    static float xs1[1001], ys1[1001];
+        //    double DEMO_TIME = ImGui::GetTime();
+        //    for (int i = 0; i < 1001; ++i) {
+        //        xs1[i] = i * 0.001f;
+        //        ys1[i] = 0.5f + 0.5f * sinf(50 * (xs1[i] + (float)DEMO_TIME / 10));
+        //    }
+        //    static double xs2[11], ys2[11];
+        //    for (int i = 0; i < 11; ++i) {
+        //        xs2[i] = i * 0.1f;
+        //        ys2[i] = xs2[i] * xs2[i];
+        //    }
+        //    ImGui::Begin("Plot");
+        //    ImGui::BulletText("Anti-aliasing can be enabled from the plot's context menu (see Help).");
+        //    if (ImPlot::BeginPlot("Line Plot", "x", "f(x)")) {
+        //        ImPlot::PlotLine("sin(x)", xs1, ys1, 1001);
+        //        ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+        //        ImPlot::PlotLine("x^2", xs2, ys2, 11);
+        //        ImPlot::EndPlot();
+        //    }
+        //    ImGui::End();
+        //}
 
-        {
-            DrawJsonConfig("config", Config::get_instance().getDocument());
-        }
+        //{
+        //    DrawJsonConfig("config", Config::get_instance().getDocument());
+        //}
 
-        {
-            Logger::get_instance().logger->flush();
-            my_log.AddLog( "%s", Logger::get_instance().oss.str().c_str() );
-            Logger::get_instance().oss.str("");
-            Logger::get_instance().oss.clear();
-            my_log.Draw("Log");
-        }
+        //{
+        //    Logger::get_instance().logger->flush();
+        //    my_log.AddLog( "%s", Logger::get_instance().oss.str().c_str() );
+        //    Logger::get_instance().oss.str("");
+        //    Logger::get_instance().oss.clear();
+        //    my_log.Draw("Log");
+        //}
 
         {
             const float DISTANCE = 10.0f;

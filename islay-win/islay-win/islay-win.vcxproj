@@ -92,9 +92,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\opencv-4.5.1\build\install\include;C:\eigen-3.4.0;C:\boost_1_77_0\include\boost-1_77;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>C:\boost_1_77_0\stage\lib\x64;C:\opencv-4.5.1\build\install\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_world451.lib;opencv_world451d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -120,11 +123,14 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\opencv-4.5.1\build\install\include;C:\eigen-3.4.0;C:\boost_1_77_0\include\boost-1_77;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\boost_1_77_0\stage\lib\x64;C:\opencv-4.5.1\build\install\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_world451.lib;opencv_world451d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -152,7 +158,10 @@
     <ClInclude Include="..\..\include\imgui_apps.h" />
     <ClInclude Include="..\..\include\InterThreadMessenger.hpp" />
     <ClInclude Include="..\..\include\Logger.h" />
+    <ClInclude Include="..\..\include\ThreadSafeQueue.h" />
     <ClInclude Include="..\..\include\Utility.h" />
+    <ClInclude Include="..\..\include\ZoomLensCommand.h" />
+    <ClInclude Include="..\..\include\ZoomLensController.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

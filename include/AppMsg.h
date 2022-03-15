@@ -10,17 +10,30 @@
 #include <memory>
 #include "InterThreadMessenger.hpp"
 
+#include "ZoomLensCommand.h"
+
 struct DispMsg : public MsgData {
     std::map<std::string, cv::Mat> pool;
 };
 
+// Zoom lens controller message
+struct ZLCMsg : public MsgData {
+	ZLCCommand command;
+	bool isTerminationRequested = false;
+};
+
 class AppMsg{
 public:
-    AppMsg():displayMessenger(new InterThreadMessenger<DispMsg>){};
-    InterThreadMessenger<DispMsg>* displayMessenger;
+    AppMsg():
+		displayMessenger(new InterThreadMessenger<DispMsg>),
+		zlcMessenger(new InterThreadMessenger<ZLCMsg>)
+	{};
+	InterThreadMessenger<DispMsg>* displayMessenger;
+	InterThreadMessenger<ZLCMsg>* zlcMessenger;
 
     void close(){
         displayMessenger->close();
+		zlcMessenger->close();
     };
 };
 
