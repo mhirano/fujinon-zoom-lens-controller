@@ -19,21 +19,23 @@ struct DispMsg : public MsgData {
 // Zoom lens controller message
 struct ZLCMsg : public MsgData {
 	ZLCCommand command;
-	bool isTerminationRequested = false;
 };
 
 class AppMsg{
 public:
     AppMsg():
-		displayMessenger(new InterThreadMessenger<DispMsg>),
-		zlcMessenger(new InterThreadMessenger<ZLCMsg>)
-	{};
+			displayMessenger(new InterThreadMessenger<DispMsg>),
+			zlcRequestMessenger(new InterThreadMessenger<ZLCMsg>),
+			zlcResponseMessenger(new InterThreadMessenger<ZLCMsg>){};
+
 	InterThreadMessenger<DispMsg>* displayMessenger;
-	InterThreadMessenger<ZLCMsg>* zlcMessenger;
+	InterThreadMessenger<ZLCMsg>* zlcRequestMessenger;
+	InterThreadMessenger<ZLCMsg>* zlcResponseMessenger;
 
     void close(){
         displayMessenger->close();
-		zlcMessenger->close();
+		zlcRequestMessenger->close();
+		zlcResponseMessenger->close();
     };
 };
 

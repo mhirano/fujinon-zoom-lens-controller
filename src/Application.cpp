@@ -14,6 +14,8 @@
 #include "Logger.h"
 #include "Utility.h"
 
+#include "ZoomLensController.h"
+
 Application::Application() {
 // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
@@ -46,7 +48,7 @@ Application::Application() {
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 #ifdef DEBUG
-    window = SDL_CreateWindow("islay - debug", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1440, 1080, window_flags);
+    window = SDL_CreateWindow("islay - debug", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, window_flags);
 #else
     window = SDL_CreateWindow("islay", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1440, 1080, window_flags);
 #endif
@@ -188,7 +190,7 @@ bool Application::run(){
             }
             observedWorkerStatus = engine->getWorkerStatus();
 
-            if (ImGui::Button("Command Sample: Blur lena randomly")) {
+            if (ImGui::Button("Run fujinon zoom lens")) {
                 if(observedWorkerStatus == WORKER_STATUS::IDLE){
                     engine->run();
                 } else {
@@ -204,19 +206,11 @@ bool Application::run(){
                 ImGui::Text("Worker: unknown");
             }
 
-			if (ImGui::Button("Tele")) {
-				auto md = appMsg->zlcMessenger->prepareMsg();
-				md->command.zoom[0] = 0xFF;
-				md->command.zoom[1] = 0xFF;
-				appMsg->zlcMessenger->send();
 
-			}
-			if (ImGui::Button("Wide")) {
-				auto md = appMsg->zlcMessenger->prepareMsg();
-				md->command.zoom[0] = 0x00;
-				md->command.zoom[1] = 0x00;
-				appMsg->zlcMessenger->send();
-			}
+            if (ImGui::Button("Test ZoomLensController")) {
+                ZoomLensControllerTest test(appMsg);
+                test.run();
+            }
 
             if (ImGui::Button("Exit")){
 				done = true;
@@ -410,6 +404,8 @@ bool Application::run(){
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
     }
+
+    appMsg->close();
 
     return true;
 }

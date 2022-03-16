@@ -5,9 +5,10 @@
 #ifndef ZOOM_LENS_COMMAND_H
 #define ZOOM_LENS_COMMAND_H
 
-class ZLCCommand {
+struct ZLCCommand {
 public:
-	unsigned char zoom[2] = {0x00, 0x00}; // 0000: wide ---- FFFF: tele
+    unsigned char code;
+    std::vector<unsigned char> data;
 };
 
 #endif //ZOOM_LENS_COMMAND_H

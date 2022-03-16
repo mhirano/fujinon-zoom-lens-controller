@@ -46,7 +46,6 @@ bool EngineOffline::run() {
 		ZoomLensController zlc(appMsg);
 		zlc.run();
 
-
         workerStatus.store(WORKER_STATUS::IDLE);
     });
 
