@@ -48,9 +48,9 @@ Application::Application() {
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 #ifdef DEBUG
-    window = SDL_CreateWindow("islay - debug", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, window_flags);
+    window = SDL_CreateWindow("Fujinon setZoomRatio lens controller - debug", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, window_flags);
 #else
-    window = SDL_CreateWindow("islay", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1440, 1080, window_flags);
+    window = SDL_CreateWindow("Fujinon zoom lens controller", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1440, 1080, window_flags);
 #endif
     gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
@@ -190,7 +190,7 @@ bool Application::run(){
             }
             observedWorkerStatus = engine->getWorkerStatus();
 
-            if (ImGui::Button("Run fujinon zoom lens")) {
+            if (ImGui::Button("Run fujinon setZoomRatio lens")) {
                 if(observedWorkerStatus == WORKER_STATUS::IDLE){
                     engine->run();
                 } else {

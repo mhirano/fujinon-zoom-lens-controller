@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-project(islay)
+project(fujinon-zoom-lens-controller)
 
 set(USE_EXTERNAL_DRIVE OFF CACHE BOOL "Use external drive for data")
 

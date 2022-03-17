@@ -7,8 +7,8 @@
 
 struct ZLCCommand {
 public:
-    unsigned char code;
-    std::vector<unsigned char> data;
+    uchar code;
+    std::vector<uchar> data;
 };
 
 #endif //ZOOM_LENS_COMMAND_H
