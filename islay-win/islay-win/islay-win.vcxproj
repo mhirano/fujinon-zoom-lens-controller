@@ -93,6 +93,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>C:\opencv-4.5.1\build\install\include;C:\eigen-3.4.0;C:\boost_1_77_0\include\boost-1_77;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,6 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>C:\opencv-4.5.1\build\install\include;C:\eigen-3.4.0;C:\boost_1_77_0\include\boost-1_77;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
