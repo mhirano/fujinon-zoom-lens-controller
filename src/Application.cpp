@@ -333,6 +333,25 @@ bool Application::run(){
 					}
 				}
 
+				// Name
+				{
+					if (ImGui::Button("Get Name (first half)")) {
+						zlcUtil.getNameFirst();
+					}
+				}
+				{
+					if (ImGui::Button("Get Name (second half)")) {
+						zlcUtil.getNameSecond();
+					}
+				}
+
+				// Serial number
+				{
+					if (ImGui::Button("Get Serial Number")) {
+						zlcUtil.getSerialNumber();
+					}
+				}
+
 			}
 
 

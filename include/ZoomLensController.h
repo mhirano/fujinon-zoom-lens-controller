@@ -97,10 +97,51 @@ public:
 	 * Decode command in C10 protocol
 	 */
 	static bool decodeCommand(const boost::array<uchar, 32> api_frame) {
+		// print frame
 		for (size_t i = 0; i < api_frame.size() - 1; ++i) {
 			std::cout << std::hex << static_cast<uint>(api_frame[i]) << " ";
 		}
-		std::cout << std::endl;
+		std::cout << std::dec << std::endl;
+
+		// retrieve data
+		size_t length = static_cast<uint>(api_frame[0]);
+		uchar code = api_frame[1];
+		std::vector<uchar> data;
+		for (size_t i = 1; i <= length; i++) {
+			data.push_back(api_frame[1 + i]);
+		}
+		uchar checksum_received = api_frame[2 + length];
+
+		// checksum
+		std::vector<uchar> data_for_checksum = data;
+		data_for_checksum.push_back(api_frame[0]);
+		data_for_checksum.push_back(api_frame[1]);
+		if (!(checksum_received == checksum(data_for_checksum))) {
+			std::cout << "Checksum failed" << std::endl;
+			return false;
+		}
+
+		// decode data
+		if (code == 0x11) {
+			std::cout << "Name (first half): " << std::endl;
+			for (int i = 0; i < length; i++) {
+				std::cout << static_cast<char>(data[i]);
+			}
+			std::cout << std::endl;
+		} else if (code == 0x12) {
+			std::cout << "Name (second half): " << std::endl;
+			for (int i = 0; i < length; i++) {
+				std::cout << static_cast<char>(data[i]);
+			}
+			std::cout << std::endl;
+		} else if (code == 0x17) {
+			std::cout << "Serial number: " << std::endl;
+			for (int i = 0; i < length; i++) {
+				std::cout << static_cast<char>(data[i]);
+			}
+			std::cout << std::endl;
+		}
+
 		return true;
 	}
 
@@ -124,7 +165,16 @@ public:
             case 0x42: /* Iris control (Auto/Remote) */
                 assert(data.size() == 1 && "Wrong data size");
                 break;
-            default:
+			case 0x17: /* Serial number */
+				assert(data.size() == 0 && "Wrong data size");
+				break;
+			case 0x11: /* Name(first half) */
+				assert(data.size() == 0 && "Wrong data size");
+				break;
+			case 0x12: /* Name(second half) */
+				assert(data.size() == 0 && "Wrong data size");
+				break;
+			default:
                 assert(!"Unsupported command for now.");
                 break;
         }
@@ -274,6 +324,11 @@ public:
 
     ZoomLensControllerUtil(AppMsgPtr _appMsg): appMsg(_appMsg){};
 
+
+	/**
+	 * Setter
+	 */
+
     /* iris control - select F number from ZOOM_LENS_F */
     void setF(ZOOM_LENS_F F){
         uchar data1, data2;
@@ -373,6 +428,21 @@ public:
         md->command.data = data;
         appMsg->zlcRequestMessenger->send();
     }
+
+	/*
+	 * Getter
+	 */
+
+	void getNameFirst() {
+		command(0x11, {});
+	}
+	void getNameSecond() {
+		command(0x12, {});
+	}
+
+	void getSerialNumber() {
+		command(0x17, {});
+	}
 
 private:
 
