@@ -5,7 +5,6 @@
 #ifndef ZOOM_LENS_CONTROLLER_H
 #define ZOOM_LENS_CONTROLLER_H
 
-//#define _SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING
 
 #include "AppMsg.h"
 
@@ -19,14 +18,14 @@ public:
 	ZoomLensController(AppMsgPtr _appMsg):appMsg(_appMsg) {};
 
 	bool run() {
-//		const char *PORT = "COM1";
-//		boost::asio::io_service io;
-//		boost::asio::serial_port port(io, PORT);
-//		port.set_option(boost::asio::serial_port_base::baud_rate(38400));
-//		port.set_option(boost::asio::serial_port_base::character_size(8));
-//		port.set_option(boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none));
-//		port.set_option(boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none));
-//		port.set_option(boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
+		const char *PORT = "COM1";
+		boost::asio::io_service io;
+		boost::asio::serial_port port(io, PORT);
+		port.set_option(boost::asio::serial_port_base::baud_rate(38400));
+		port.set_option(boost::asio::serial_port_base::character_size(8));
+		port.set_option(boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none));
+		port.set_option(boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none));
+		port.set_option(boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
 
         /*
          * Make sure to use "video iris mode"
@@ -34,8 +33,8 @@ public:
          * - Set filter to "Filter Clear" (not cut visible light)
          * - Set to remote iris (to enable iris control)
          */
-//      port.write_some(boost::asio::buffer(generateCommand(0x40, {0xE0}))); // set filter to "Filter Clear"
-//      port.write_some(boost::asio::buffer(generateCommand(0x42, {0xDC}))); // set to remote iris
+      port.write_some(boost::asio::buffer(generateCommand(0x40, {0xE0}))); // set filter to "Filter Clear"
+      port.write_some(boost::asio::buffer(generateCommand(0x42, {0xDC}))); // set to remote iris
 
         /*
          * Main loop
@@ -53,7 +52,7 @@ public:
                 auto send_api_frame = generateCommand(code, data);
                 for (auto i: send_api_frame) { std::cout << std::hex << (uint)i << " "; }
                 std::cout << std::dec << std::endl;
-//                port.write_some(boost::asio::buffer(send_api_frame));
+                port.write_some(boost::asio::buffer(send_api_frame));
 
                 /* RECEIVE COMMAND */
 //                boost::array<uchar, 32> receive_api_frame;
@@ -288,10 +287,11 @@ public:
                 data1 = 0xFF; data2 = 0xFF; // open
                 break;
         }
-        auto md = appMsg->zlcRequestMessenger->prepareMsg();
-        md->command.code = 0x20;
-        md->command.data = {data1, data2};
-        appMsg->zlcRequestMessenger->send();
+		command(0x20, { data1, data2 });
+        //auto md = appMsg->zlcRequestMessenger->prepareMsg();
+        //md->command.code = 0x20;
+        //md->command.data = {data1, data2};
+        //appMsg->zlcRequestMessenger->send();
     }
 
     /* Zoom by ratio (1x: wide end <--> 32x: tele end) */
@@ -305,14 +305,15 @@ public:
         uchar data1 = static_cast<uchar>(data/256); // C10 protocol uses big endian
         uchar data2 = static_cast<uchar>(data%256);
 
-        auto md = appMsg->zlcRequestMessenger->prepareMsg();
-        md->command.code = 0x21;
-        md->command.data = {data1, data2};
-        appMsg->zlcRequestMessenger->send();
+		command(0x21, { data1, data2 });
+        //auto md = appMsg->zlcRequestMessenger->prepareMsg();
+        //md->command.code = 0x21;
+        //md->command.data = {data1, data2};
+        //appMsg->zlcRequestMessenger->send();
     }
 
 
-    /* focus by ratio (0: MOD(minimum object distance) <--> 1: Inf) */
+    /* focus by meter (3m (Minimum object distance) <--> 500m (Infinity)) */
     void setFocus(float meter){
         meter = std::clamp(meter, 3.0f, 500.0f);
 
@@ -323,10 +324,11 @@ public:
         uchar data1 = static_cast<uchar>(data/256); // C10 protocol uses big endian
         uchar data2 = static_cast<uchar>(data%256);
 
-        auto md = appMsg->zlcRequestMessenger->prepareMsg();
-        md->command.code = 0x22;
-        md->command.data = {data1, data2};
-        appMsg->zlcRequestMessenger->send();
+		command(0x22, { data1, data2 });
+        //auto md = appMsg->zlcRequestMessenger->prepareMsg();
+        //md->command.code = 0x22;
+        //md->command.data = {data1, data2};
+        //appMsg->zlcRequestMessenger->send();
     }
 
     /* switch filter */
@@ -361,6 +363,7 @@ public:
     /* direct command */
     void command(uchar code, std::vector<uchar> data){
         ZoomLensController::sanityCheck(code, data);
+
         auto md = appMsg->zlcRequestMessenger->prepareMsg();
         md->command.code = code;
         md->command.data = data;
@@ -429,60 +432,60 @@ public:
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         std::cout << "2 20 0 0 de (Expected output)" << std::endl;
 
-        zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::OPEN); // open
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 20 ff ff e0 (Expected output)" << std::endl;
+        //zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::OPEN); // open
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 20 ff ff e0 (Expected output)" << std::endl;
 
-        /*
-         * setZoomRatio
-         */
-        zlcUtil.command(0x21, {0x00, 0x00}); // wide end
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 21 0 0 dd (Expected output)" << std::endl;
+        ///*
+        // * setZoomRatio
+        // */
+        //zlcUtil.command(0x21, {0x00, 0x00}); // wide end
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 21 0 0 dd (Expected output)" << std::endl;
 
-        zlcUtil.command(0x21, {0xFF, 0xFF}); // tele end
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 21 ff ff df (Expected output)" << std::endl;
+        //zlcUtil.command(0x21, {0xFF, 0xFF}); // tele end
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 21 ff ff df (Expected output)" << std::endl;
 
-        zlcUtil.setZoomRatio(1.0); // wide end
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 21 0 0 dd (Expected output)" << std::endl;
+        //zlcUtil.setZoomRatio(1.0); // wide end
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 21 0 0 dd (Expected output)" << std::endl;
 
-        zlcUtil.setZoomRatio(2.0); // wide end
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 21 54 00 89 (Expected output)" << std::endl;
+        //zlcUtil.setZoomRatio(2.0); // wide end
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 21 54 00 89 (Expected output)" << std::endl;
 
-        zlcUtil.setZoomRatio(3.0); // wide end
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 21 78 00 65 (Expected output)" << std::endl;
+        //zlcUtil.setZoomRatio(3.0); // wide end
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 21 78 00 65 (Expected output)" << std::endl;
 
-        zlcUtil.setZoomRatio(10.0); // wide end
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 21 C2 00 1B (Expected output)" << std::endl;
+        //zlcUtil.setZoomRatio(10.0); // wide end
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 21 C2 00 1B (Expected output)" << std::endl;
 
-        zlcUtil.setZoomRatio(32.0); // tele end
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 21 ff ff df (Expected output)" << std::endl;
+        //zlcUtil.setZoomRatio(32.0); // tele end
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 21 ff ff df (Expected output)" << std::endl;
 
 
-        /*
-         * focus
-         */
-        zlcUtil.setFocus(3.0); // focus at 3m
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 22 0C 00 D0 (Expected output)" << std::endl;
+        ///*
+        // * focus
+        // */
+        //zlcUtil.setFocus(3.0); // focus at 3m
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 22 0C 00 D0 (Expected output)" << std::endl;
 
-        zlcUtil.setFocus(5.0); // focus at 50m
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 22 6E 00 6E (Expected output)" << std::endl;
+        //zlcUtil.setFocus(5.0); // focus at 50m
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 22 6E 00 6E (Expected output)" << std::endl;
 
-        zlcUtil.setFocus(100.0); // focus at 100m
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 22 F7 63 82 (Expected output)" << std::endl;
+        //zlcUtil.setFocus(100.0); // focus at 100m
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 22 F7 63 82 (Expected output)" << std::endl;
 
-        zlcUtil.setFocus(500.0); // focus at infinity
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::cout << "2 22 FF FF DE (Expected output)" << std::endl;
+        //zlcUtil.setFocus(500.0); // focus at infinity
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::cout << "2 22 FF FF DE (Expected output)" << std::endl;
 
         return true;
     }

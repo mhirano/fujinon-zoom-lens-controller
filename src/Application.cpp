@@ -47,10 +47,10 @@ Application::Application() {
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-#ifdef DEBUG
-    window = SDL_CreateWindow("Fujinon setZoomRatio lens controller - debug", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, window_flags);
+#if defined(DEBUG) || defined(_DEBUG)
+    window = SDL_CreateWindow("Fujinon zoom lens controller - debug", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 720, 540, window_flags);
 #else
-    window = SDL_CreateWindow("Fujinon zoom lens controller", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1440, 1080, window_flags);
+    window = SDL_CreateWindow("Fujinon zoom lens controller", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 720, 540, window_flags);
 #endif
     gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
@@ -173,9 +173,9 @@ bool Application::run(){
         ImGui::NewFrame();
 
 // Dear ImGui demo
-        //{
-        //    ImGui::ShowDemoWindow();
-        //}
+        {
+            ImGui::ShowDemoWindow();
+        }
 
 
 // Commands
@@ -206,12 +206,137 @@ bool Application::run(){
                 ImGui::Text("Worker: unknown");
             }
 
+			{
+				ImGui::Text("Control");
+				ZoomLensControllerUtil zlcUtil(appMsg);
 
-            if (ImGui::Button("Test ZoomLensController")) {
-                ZoomLensControllerTest test(appMsg);
-                test.run();
-            }
+				// zoom
+				{
+					static float zoom_ratio = 1.0f;
+					bool isChanged = ImGui::SliderFloat("Zoom", &zoom_ratio, 1.0f, 32.0f, "ratio = %3.1f");
+					if (isChanged) {
+						zlcUtil.setZoomRatio(zoom_ratio);
+					}
+				}
+				
+				// focus
+				{
+					static float focus_meter = 3.0f;
+					bool isChanged = ImGui::SliderFloat("Focus", &focus_meter, 3.0f, 150.0f, "%3.1f [m]");
+					if (isChanged) {
+						zlcUtil.setFocus(focus_meter);
+					}
+				}
 
+				// F number
+				{
+					static ImGuiComboFlags flags_F = 0;
+					const char* items_F[] = { "OPEN", "F4", "F5.6", "F8", "F11", "F16", "CLOSE" };
+					static int item_current_idx_F = 0;                    // Here our selection data is an index.
+					const char* combo_label_F = items_F[item_current_idx_F];  // Label to preview before opening the combo (technically it could be anything)
+					if (ImGui::BeginCombo("F number", combo_label_F, flags_F))
+					{
+						for (int n = 0; n < IM_ARRAYSIZE(items_F); n++)
+						{
+							const bool is_selected = (item_current_idx_F == n);
+							if (ImGui::Selectable(items_F[n], is_selected)) {
+								item_current_idx_F = n;
+
+								if (items_F[item_current_idx_F] == "OPEN") {
+									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::OPEN);
+								}
+								else if (items_F[item_current_idx_F] == "F4") {
+									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::F4);
+								}
+								else if (items_F[item_current_idx_F] == "F5.6") {
+									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::F5_6);
+								}
+								else if (items_F[item_current_idx_F] == "F8") {
+									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::F8);
+								}
+								else if (items_F[item_current_idx_F] == "F11") {
+									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::F11);
+								}
+								else if (items_F[item_current_idx_F] == "F16") {
+									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::F16);
+								}
+								else if (items_F[item_current_idx_F] == "CLOSE") {
+									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::CLOSE);
+								}
+							}
+
+							// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+							if (is_selected)
+								ImGui::SetItemDefaultFocus();
+						}
+						ImGui::EndCombo();
+					}
+				}
+
+				// filter
+				{
+					static ImGuiComboFlags flags_filter = 0;
+					const char* items_filter[] = { "FILTER_CLEAR", "VISIBLE_LIGHT_CUT_FILTER" };
+					static int item_current_idx_filter = 0;                    // Here our selection data is an index.
+					const char* combo_label_filter = items_filter[item_current_idx_filter];  // Label to preview before opening the combo (technically it could be anything)
+					if (ImGui::BeginCombo("Filter", combo_label_filter, flags_filter))
+					{
+						for (int n = 0; n < IM_ARRAYSIZE(items_filter); n++)
+						{
+							const bool is_selected = (item_current_idx_filter == n);
+							if (ImGui::Selectable(items_filter[n], is_selected)) {
+								item_current_idx_filter = n;
+
+								if (items_filter[item_current_idx_filter] == "FILTER_CLEAR") {
+									zlcUtil.filter(ZoomLensControllerUtil::ZOOM_LENS_FILTER::FILTER_CLEAR);
+								}
+								else if (items_filter[item_current_idx_filter] == "VISIBLE_LIGHT_CUT_FILTER") {
+									zlcUtil.filter(ZoomLensControllerUtil::ZOOM_LENS_FILTER::VISIBLE_LIGHT_CUT_FILTER);
+								}
+							}
+
+							// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+							if (is_selected)
+								ImGui::SetItemDefaultFocus();
+						}
+						ImGui::EndCombo();
+					}
+				}
+
+				// iris
+				{
+					static ImGuiComboFlags flags_iris = 0;
+					const char* items_iris[] = { "REMOTE", "AUTO" };
+					static int item_current_idx_iris = 0;                    // Here our selection data is an index.
+					const char* combo_label_iris = items_iris[item_current_idx_iris];  // Label to preview before opening the combo (technically it could be anything)
+					if (ImGui::BeginCombo("Iris", combo_label_iris, flags_iris))
+					{
+						for (int n = 0; n < IM_ARRAYSIZE(items_iris); n++)
+						{
+							const bool is_selected = (item_current_idx_iris == n);
+							if (ImGui::Selectable(items_iris[n], is_selected)) {
+								item_current_idx_iris = n;
+
+								if (items_iris[item_current_idx_iris] == "REMOTE") {
+									zlcUtil.setIrisMode(ZoomLensControllerUtil::ZOOM_LENS_IRIS::REMOTE);
+								}
+								else if (items_iris[item_current_idx_iris] == "AUTO") {
+									zlcUtil.setIrisMode(ZoomLensControllerUtil::ZOOM_LENS_IRIS::AUTO);
+								}
+							}
+
+							// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+							if (is_selected)
+								ImGui::SetItemDefaultFocus();
+						}
+						ImGui::EndCombo();
+					}
+				}
+
+			}
+
+
+			ImGui::NewLine();
             if (ImGui::Button("Exit")){
 				done = true;
             }

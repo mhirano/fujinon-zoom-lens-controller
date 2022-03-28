@@ -2,9 +2,6 @@
 // Created by Hirano Masahiro <masahiro.dll@gmail.com>
 //
 
-#define _SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING
-
-
 #include "Engine.h"
 #include "AppMsg.h"
 #include "Config.h"
