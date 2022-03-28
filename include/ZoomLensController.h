@@ -27,14 +27,25 @@ public:
 		port.set_option(boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none));
 		port.set_option(boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
 
+		// frames
+		boost::array<uchar, 32> receive_api_frame;
+		size_t length;
+
         /*
          * Make sure to use "video iris mode"
          * Initialize zoom lens
          * - Set filter to "Filter Clear" (not cut visible light)
          * - Set to remote iris (to enable iris control)
          */
-      port.write_some(boost::asio::buffer(generateCommand(0x40, {0xE0}))); // set filter to "Filter Clear"
-      port.write_some(boost::asio::buffer(generateCommand(0x42, {0xDC}))); // set to remote iris
+	    port.write_some(boost::asio::buffer(encodeCommand(0x40, {0xE0}))); // set filter to "Filter Clear"
+		receive_api_frame.assign(0xFF); // Assign 0xFF to all entries
+		length = port.read_some(boost::asio::buffer(receive_api_frame));
+		decodeCommand(receive_api_frame);
+
+		port.write_some(boost::asio::buffer(encodeCommand(0x42, {0xDC}))); // set to remote iris
+		receive_api_frame.assign(0xFF); // Assign 0xFF to all entries
+		length = port.read_some(boost::asio::buffer(receive_api_frame));
+		decodeCommand(receive_api_frame);
 
         /*
          * Main loop
@@ -49,26 +60,20 @@ public:
                 sanityCheck(code, data);
 
                 /* SEND COMMAND */
-                auto send_api_frame = generateCommand(code, data);
+                auto send_api_frame = encodeCommand(code, data);
                 for (auto i: send_api_frame) { std::cout << std::hex << (uint)i << " "; }
                 std::cout << std::dec << std::endl;
                 port.write_some(boost::asio::buffer(send_api_frame));
 
                 /* RECEIVE COMMAND */
-//                boost::array<uchar, 32> receive_api_frame;
-//                receive_api_frame.assign(0xFF); // Assign 0xFF to all entries
-//                size_t length = port.read_some( boost::asio::buffer(receive_api_frame) );
-//
-//                for (size_t i = 0; i < receive_api_frame.size() - 1; ++i) {
-//                    std::cout << std::hex << static_cast<uint>(receive_api_frame[i]) << " ";
-//                }
-//                std::cout << std::endl;
+                receive_api_frame.assign(0xFF); // Assign 0xFF to all entries
+                length = port.read_some( boost::asio::buffer(receive_api_frame) );
+				decodeCommand(receive_api_frame);
 			}
 
             if (appMsg->zlcRequestMessenger->isClosed()) {
                 printf("\n## termination requested ##\n");
                 break;
-
             }
 		}
 
@@ -78,15 +83,26 @@ public:
 	/*
 	 * Generate command in C10 protocol
 	 */
-    static std::vector<uchar> generateCommand(uchar code, std::vector<uchar> data) {
+    static std::vector<uchar> encodeCommand(uchar code, std::vector<uchar> data) {
         std::vector<uchar> api_frame;
         api_frame.push_back(data.size()); // append data length
         api_frame.push_back(code); // append function code
         for (auto i:data) { api_frame.push_back(i); } // append function data
         api_frame.push_back(checksum(api_frame)); // append checksum
-
+	
         return api_frame;
     }
+
+	/*
+	 * Decode command in C10 protocol
+	 */
+	static bool decodeCommand(const boost::array<uchar, 32> api_frame) {
+		for (size_t i = 0; i < api_frame.size() - 1; ++i) {
+			std::cout << std::hex << static_cast<uint>(api_frame[i]) << " ";
+		}
+		std::cout << std::endl;
+		return true;
+	}
 
     /*
      * Sanity check
@@ -288,10 +304,6 @@ public:
                 break;
         }
 		command(0x20, { data1, data2 });
-        //auto md = appMsg->zlcRequestMessenger->prepareMsg();
-        //md->command.code = 0x20;
-        //md->command.data = {data1, data2};
-        //appMsg->zlcRequestMessenger->send();
     }
 
     /* Zoom by ratio (1x: wide end <--> 32x: tele end) */
@@ -306,10 +318,6 @@ public:
         uchar data2 = static_cast<uchar>(data%256);
 
 		command(0x21, { data1, data2 });
-        //auto md = appMsg->zlcRequestMessenger->prepareMsg();
-        //md->command.code = 0x21;
-        //md->command.data = {data1, data2};
-        //appMsg->zlcRequestMessenger->send();
     }
 
 
@@ -325,10 +333,6 @@ public:
         uchar data2 = static_cast<uchar>(data%256);
 
 		command(0x22, { data1, data2 });
-        //auto md = appMsg->zlcRequestMessenger->prepareMsg();
-        //md->command.code = 0x22;
-        //md->command.data = {data1, data2};
-        //appMsg->zlcRequestMessenger->send();
     }
 
     /* switch filter */
