@@ -53,8 +53,8 @@ public:
         while (true) {
 			auto commandMsg = appMsg->zlcRequestMessenger->receive();
 			if (commandMsg != nullptr) {
-                uchar code = commandMsg->command.code;
-                std::vector<uchar> data = commandMsg->command.data;
+                uchar code = commandMsg->code;
+                std::vector<uchar> data = commandMsg->data;
 
                 /* SANITY CHECK */
                 sanityCheck(code, data);
@@ -424,8 +424,8 @@ public:
         ZoomLensController::sanityCheck(code, data);
 
         auto md = appMsg->zlcRequestMessenger->prepareMsg();
-        md->command.code = code;
-        md->command.data = data;
+        md->code = code;
+        md->data = data;
         appMsg->zlcRequestMessenger->send();
     }
 
