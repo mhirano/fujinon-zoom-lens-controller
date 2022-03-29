@@ -15,7 +15,7 @@
 class ZoomLensController {
 public:
 
-	ZoomLensController(AppMsgPtr _appMsg):appMsg(_appMsg) {};
+	ZoomLensController(AppMsgPtr _appMsg) :appMsg(_appMsg) {};
 
 	bool run() {
 		const char *PORT = "COM1";
@@ -43,6 +43,16 @@ public:
 		decodeCommand(receive_api_frame);
 
 		port.write_some(boost::asio::buffer(encodeCommand(0x42, {0xDC}))); // set to remote iris
+		receive_api_frame.assign(0xFF); // Assign 0xFF to all entries
+		length = port.read_some(boost::asio::buffer(receive_api_frame));
+		decodeCommand(receive_api_frame);
+
+		port.write_some(boost::asio::buffer(encodeCommand(0x21, { 0x00, 0x00}))); // set zoom to wide end
+		receive_api_frame.assign(0xFF); // Assign 0xFF to all entries
+		length = port.read_some(boost::asio::buffer(receive_api_frame));
+		decodeCommand(receive_api_frame);
+
+		port.write_some(boost::asio::buffer(encodeCommand(0x20, { 0xFF, 0xFF }))); // set iris to open
 		receive_api_frame.assign(0xFF); // Assign 0xFF to all entries
 		length = port.read_some(boost::asio::buffer(receive_api_frame));
 		decodeCommand(receive_api_frame);
@@ -96,14 +106,14 @@ public:
 	/*
 	 * Decode command in C10 protocol
 	 */
-	static bool decodeCommand(const boost::array<uchar, 32> api_frame) {
+	bool decodeCommand(const boost::array<uchar, 32> api_frame) {
 		// print frame
 		for (size_t i = 0; i < api_frame.size() - 1; ++i) {
 			std::cout << std::hex << static_cast<uint>(api_frame[i]) << " ";
 		}
 		std::cout << std::dec << std::endl;
 
-		// retrieve data
+		// retrieve data part
 		size_t length = static_cast<uint>(api_frame[0]);
 		uchar code = api_frame[1];
 		std::vector<uchar> data;
@@ -122,26 +132,33 @@ public:
 		}
 
 		// decode data
-		if (code == 0x11) {
-			std::cout << "Name (first half): " << std::endl;
-			for (int i = 0; i < length; i++) {
-				std::cout << static_cast<char>(data[i]);
-			}
-			std::cout << std::endl;
-		} else if (code == 0x12) {
-			std::cout << "Name (second half): " << std::endl;
-			for (int i = 0; i < length; i++) {
-				std::cout << static_cast<char>(data[i]);
-			}
-			std::cout << std::endl;
-		} else if (code == 0x17) {
-			std::cout << "Serial number: " << std::endl;
+		if (code == 0x11) { // Get second half of name
+			std::cout << "Name (first half): ";
 			for (int i = 0; i < length; i++) {
 				std::cout << static_cast<char>(data[i]);
 			}
 			std::cout << std::endl;
 		}
-
+		else if (code == 0x12) { // Get first half of name
+			std::cout << "Name (second half): "; 
+			for (int i = 0; i < length; i++) {
+				std::cout << static_cast<char>(data[i]);
+			}
+			std::cout << std::endl;
+		}
+		else if (code == 0x17) { // Get serial number
+			std::cout << "Serial number: ";
+			for (int i = 0; i < length; i++) {
+				std::cout << static_cast<char>(data[i]);
+			}
+			std::cout << std::endl;
+		}
+		else if (code == 0x31) { // Get zoom position
+			std::cout << "Zoom position: " << std::hex << (uint)data[0] << " " << (uint)data[1] << std::endl;
+		}
+		else if (code == 0x32) { // Get focus position
+			std::cout << "Focus position: " << std::hex << (uint)data[0] << " " << (uint)data[1] << std::endl;
+		}
 		return true;
 	}
 
@@ -159,7 +176,7 @@ public:
             case 0x22: /* Focus control (Position) */
                 assert(data.size() == 2 && "Wrong data size");
                 break;
-            case 0x40: /* filter control (VisCut/Clear) */
+            case 0x40: /* Filter control (VisCut/Clear) */
                 assert(data.size() == 1 && "Wrong data size");
                 break;
             case 0x42: /* Iris control (Auto/Remote) */
@@ -172,6 +189,12 @@ public:
 				assert(data.size() == 0 && "Wrong data size");
 				break;
 			case 0x12: /* Name(second half) */
+				assert(data.size() == 0 && "Wrong data size");
+				break;
+			case 0x31: /* Get zoom position */
+				assert(data.size() == 0 && "Wrong data size");
+				break;
+			case 0x32: /* Get focus position */
 				assert(data.size() == 0 && "Wrong data size");
 				break;
 			default:
@@ -335,8 +358,7 @@ public:
         switch(F){
             case ZOOM_LENS_F::CLOSE:
                 data1 = 0x00; data2 = 0x00;
-                break;
-            case ZOOM_LENS_F::F16:
+                break;case ZOOM_LENS_F::F16:
                 data1 = 0x34; data2 = 0x00;
                 break;
             case ZOOM_LENS_F::F11:
@@ -391,7 +413,7 @@ public:
     }
 
     /* switch filter */
-    void filter(ZOOM_LENS_FILTER filter){
+    void setFilter(ZOOM_LENS_FILTER filter){
         switch (filter) {
             case ZOOM_LENS_FILTER::VISIBLE_LIGHT_CUT_FILTER:
                 command(0x40, {0xF0});
@@ -416,17 +438,6 @@ public:
             default:
                 break;
         }
-
-    }
-
-    /* direct command */
-    void command(uchar code, std::vector<uchar> data){
-        ZoomLensController::sanityCheck(code, data);
-
-        auto md = appMsg->zlcRequestMessenger->prepareMsg();
-        md->code = code;
-        md->data = data;
-        appMsg->zlcRequestMessenger->send();
     }
 
 	/*
@@ -442,6 +453,25 @@ public:
 
 	void getSerialNumber() {
 		command(0x17, {});
+	}
+
+	void getZoomPosition() {
+		command(0x31, {});
+	}
+
+	void getFocusPosition() {
+		command(0x32, {});
+	}
+
+
+	/* direct command */
+	void command(uchar code, std::vector<uchar> data) {
+		ZoomLensController::sanityCheck(code, data);
+
+		auto md = appMsg->zlcRequestMessenger->prepareMsg();
+		md->code = code;
+		md->data = data;
+		appMsg->zlcRequestMessenger->send();
 	}
 
 private:
@@ -480,6 +510,9 @@ public:
 
     ZoomLensControllerTest(AppMsgPtr _appMsg): appMsg(_appMsg){ }
 
+	/*
+	 * Check if command is generated correctly.
+	 */
     bool run() {
         ZLCUtil zlcUtil(appMsg);
 
@@ -506,60 +539,60 @@ public:
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         std::cout << "2 20 0 0 de (Expected output)" << std::endl;
 
-        //zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::OPEN); // open
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 20 ff ff e0 (Expected output)" << std::endl;
+        zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::OPEN); // open
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 20 ff ff e0 (Expected output)" << std::endl;
 
-        ///*
-        // * setZoomRatio
-        // */
-        //zlcUtil.command(0x21, {0x00, 0x00}); // wide end
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 21 0 0 dd (Expected output)" << std::endl;
+        /*
+         * setZoomRatio
+         */
+        zlcUtil.command(0x21, {0x00, 0x00}); // wide end
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 21 0 0 dd (Expected output)" << std::endl;
 
-        //zlcUtil.command(0x21, {0xFF, 0xFF}); // tele end
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 21 ff ff df (Expected output)" << std::endl;
+        zlcUtil.command(0x21, {0xFF, 0xFF}); // tele end
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 21 ff ff df (Expected output)" << std::endl;
 
-        //zlcUtil.setZoomRatio(1.0); // wide end
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 21 0 0 dd (Expected output)" << std::endl;
+        zlcUtil.setZoomRatio(1.0); // wide end
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 21 0 0 dd (Expected output)" << std::endl;
 
-        //zlcUtil.setZoomRatio(2.0); // wide end
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 21 54 00 89 (Expected output)" << std::endl;
+        zlcUtil.setZoomRatio(2.0); // wide end
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 21 54 00 89 (Expected output)" << std::endl;
 
-        //zlcUtil.setZoomRatio(3.0); // wide end
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 21 78 00 65 (Expected output)" << std::endl;
+        zlcUtil.setZoomRatio(3.0); // wide end
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 21 78 00 65 (Expected output)" << std::endl;
 
-        //zlcUtil.setZoomRatio(10.0); // wide end
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 21 C2 00 1B (Expected output)" << std::endl;
+        zlcUtil.setZoomRatio(10.0); // wide end
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 21 C2 00 1B (Expected output)" << std::endl;
 
-        //zlcUtil.setZoomRatio(32.0); // tele end
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 21 ff ff df (Expected output)" << std::endl;
+        zlcUtil.setZoomRatio(32.0); // tele end
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 21 ff ff df (Expected output)" << std::endl;
 
 
-        ///*
-        // * focus
-        // */
-        //zlcUtil.setFocus(3.0); // focus at 3m
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 22 0C 00 D0 (Expected output)" << std::endl;
+        /*
+         * focus
+         */
+        zlcUtil.setFocus(3.0); // focus at 3m
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 22 0C 00 D0 (Expected output)" << std::endl;
 
-        //zlcUtil.setFocus(5.0); // focus at 50m
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 22 6E 00 6E (Expected output)" << std::endl;
+        zlcUtil.setFocus(5.0); // focus at 50m
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 22 6E 00 6E (Expected output)" << std::endl;
 
-        //zlcUtil.setFocus(100.0); // focus at 100m
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 22 F7 63 82 (Expected output)" << std::endl;
+        zlcUtil.setFocus(100.0); // focus at 100m
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 22 F7 63 82 (Expected output)" << std::endl;
 
-        //zlcUtil.setFocus(500.0); // focus at infinity
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //std::cout << "2 22 FF FF DE (Expected output)" << std::endl;
+        zlcUtil.setFocus(500.0); // focus at infinity
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "2 22 FF FF DE (Expected output)" << std::endl;
 
         return true;
     }

@@ -288,10 +288,10 @@ bool Application::run(){
 								item_current_idx_filter = n;
 
 								if (items_filter[item_current_idx_filter] == "FILTER_CLEAR") {
-									zlcUtil.filter(ZoomLensControllerUtil::ZOOM_LENS_FILTER::FILTER_CLEAR);
+									zlcUtil.setFilter(ZoomLensControllerUtil::ZOOM_LENS_FILTER::FILTER_CLEAR);
 								}
 								else if (items_filter[item_current_idx_filter] == "VISIBLE_LIGHT_CUT_FILTER") {
-									zlcUtil.filter(ZoomLensControllerUtil::ZOOM_LENS_FILTER::VISIBLE_LIGHT_CUT_FILTER);
+									zlcUtil.setFilter(ZoomLensControllerUtil::ZOOM_LENS_FILTER::VISIBLE_LIGHT_CUT_FILTER);
 								}
 							}
 
@@ -349,6 +349,20 @@ bool Application::run(){
 				{
 					if (ImGui::Button("Get Serial Number")) {
 						zlcUtil.getSerialNumber();
+					}
+				}
+
+				// Get zoom position
+				{
+					if (ImGui::Button("Get zoom position")) {
+						zlcUtil.getZoomPosition();
+					}
+				}
+
+				// Get zoom position
+				{
+					if (ImGui::Button("Get focus position")) {
+						zlcUtil.getFocusPosition();
 					}
 				}
 
