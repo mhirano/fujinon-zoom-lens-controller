@@ -151,6 +151,8 @@
     <ClCompile Include="..\..\src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\FUJINON\FujinonZoomLens.h" />
+    <ClInclude Include="..\..\FUJINON\FujinonZoomLensCom.h" />
     <ClInclude Include="..\..\include\Application.h" />
     <ClInclude Include="..\..\include\AppMsg.h" />
     <ClInclude Include="..\..\include\Config.h" />

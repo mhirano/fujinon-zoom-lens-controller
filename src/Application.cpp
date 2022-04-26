@@ -14,7 +14,7 @@
 #include "Logger.h"
 #include "Utility.h"
 
-#include "FujinonZoomLens.h"
+#include "FujinonZoomLensCom.h"
 
 Application::Application() {
 // Setup SDL
@@ -177,7 +177,6 @@ bool Application::run(){
             ImGui::ShowDemoWindow();
         }
 
-
 // Commands
         {
             ImGui::Begin("Commands");
@@ -208,14 +207,16 @@ bool Application::run(){
 
 			{
 				ImGui::Text("Control");
-				FujinonZoomLensControllerUtil zlcUtil(appMsg);
+				
+				auto client = std::make_shared<FujinonZoomLensClient>(appMsg);
+				FujinonZoomLensController zlc(std::static_pointer_cast<FujinonZoomLensClientTemplate>(client));
 
 				// zoom
 				{
 					static float zoom_ratio = 1.0f;
 					bool isChanged = ImGui::SliderFloat("Zoom", &zoom_ratio, 1.0f, 32.0f, "ratio = %3.1f");
 					if (isChanged) {
-						zlcUtil.setZoomRatio(zoom_ratio);
+						zlc.setZoomRatio(zoom_ratio);
 					}
 				}
 				
@@ -224,7 +225,7 @@ bool Application::run(){
 					static float focus_meter = 3.0f;
 					bool isChanged = ImGui::SliderFloat("Focus", &focus_meter, 3.0f, 150.0f, "%3.1f [m]");
 					if (isChanged) {
-						zlcUtil.setFocus(focus_meter);
+						zlc.setFocus(focus_meter);
 					}
 				}
 
@@ -243,25 +244,25 @@ bool Application::run(){
 								item_current_idx_F = n;
 
 								if (items_F[item_current_idx_F] == "OPEN") {
-									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::OPEN);
+									zlc.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::OPEN);
 								}
 								else if (items_F[item_current_idx_F] == "F4") {
-									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F4);
+									zlc.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F4);
 								}
 								else if (items_F[item_current_idx_F] == "F5.6") {
-									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F5_6);
+									zlc.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F5_6);
 								}
 								else if (items_F[item_current_idx_F] == "F8") {
-									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F8);
+									zlc.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F8);
 								}
 								else if (items_F[item_current_idx_F] == "F11") {
-									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F11);
+									zlc.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F11);
 								}
 								else if (items_F[item_current_idx_F] == "F16") {
-									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F16);
+									zlc.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F16);
 								}
 								else if (items_F[item_current_idx_F] == "CLOSE") {
-									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::CLOSE);
+									zlc.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::CLOSE);
 								}
 							}
 
@@ -288,10 +289,10 @@ bool Application::run(){
 								item_current_idx_filter = n;
 
 								if (items_filter[item_current_idx_filter] == "FILTER_CLEAR") {
-									zlcUtil.setFilter(FujinonZoomLensControllerUtil::ZOOM_LENS_FILTER::FILTER_CLEAR);
+									zlc.setFilter(FujinonZoomLensControllerUtil::ZOOM_LENS_FILTER::FILTER_CLEAR);
 								}
 								else if (items_filter[item_current_idx_filter] == "VISIBLE_LIGHT_CUT_FILTER") {
-									zlcUtil.setFilter(FujinonZoomLensControllerUtil::ZOOM_LENS_FILTER::VISIBLE_LIGHT_CUT_FILTER);
+									zlc.setFilter(FujinonZoomLensControllerUtil::ZOOM_LENS_FILTER::VISIBLE_LIGHT_CUT_FILTER);
 								}
 							}
 
@@ -318,10 +319,10 @@ bool Application::run(){
 								item_current_idx_iris = n;
 
 								if (items_iris[item_current_idx_iris] == "REMOTE") {
-									zlcUtil.setIrisMode(FujinonZoomLensControllerUtil::ZOOM_LENS_IRIS::REMOTE);
+									zlc.setIrisMode(FujinonZoomLensControllerUtil::ZOOM_LENS_IRIS::REMOTE);
 								}
 								else if (items_iris[item_current_idx_iris] == "AUTO") {
-									zlcUtil.setIrisMode(FujinonZoomLensControllerUtil::ZOOM_LENS_IRIS::AUTO);
+									zlc.setIrisMode(FujinonZoomLensControllerUtil::ZOOM_LENS_IRIS::AUTO);
 								}
 							}
 
@@ -336,33 +337,33 @@ bool Application::run(){
 				// Name
 				{
 					if (ImGui::Button("Get Name (first half)")) {
-						zlcUtil.getNameFirst();
+						zlc.getNameFirst();
 					}
 				}
 				{
 					if (ImGui::Button("Get Name (second half)")) {
-						zlcUtil.getNameSecond();
+						zlc.getNameSecond();
 					}
 				}
 
 				// Serial number
 				{
 					if (ImGui::Button("Get Serial Number")) {
-						zlcUtil.getSerialNumber();
+						zlc.getSerialNumber();
 					}
 				}
 
 				// Get zoom position
 				{
 					if (ImGui::Button("Get zoom position")) {
-						zlcUtil.getZoomPosition();
+						zlc.getZoomPosition();
 					}
 				}
 
 				// Get zoom position
 				{
 					if (ImGui::Button("Get focus position")) {
-						zlcUtil.getFocusPosition();
+						zlc.getFocusPosition();
 					}
 				}
 

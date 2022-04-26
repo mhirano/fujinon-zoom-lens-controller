@@ -6,7 +6,7 @@
 #include "AppMsg.h"
 #include "Config.h"
 #include "Logger.h"
-#include "FujinonZoomLens.h"
+#include "FujinonZoomLensCom.h"
 
 namespace Bench {
     template <typename TimeT = std::chrono::milliseconds, typename F>
@@ -40,8 +40,22 @@ bool EngineOffline::run() {
     worker = std::thread([this] {
         workerStatus.store(WORKER_STATUS::RUNNING);
 
-		FujinonZoomLensController zlc(appMsg);
-		zlc.run();
+		FujinonZoomLensServer server;
+
+		while (true) {
+			auto commandMsg = appMsg->zlcRequestMessenger->receive();
+			if (commandMsg != nullptr) {
+				FujinonZoomLensCommand cmd;
+				cmd.code = commandMsg->code;
+				cmd.data = commandMsg->data;
+				server.runCommand(cmd);
+			}
+
+			if (appMsg->zlcRequestMessenger->isClosed()) {
+				printf("\n## termination requested ##\n");
+				break;
+			}
+		}
 
         workerStatus.store(WORKER_STATUS::IDLE);
     });
