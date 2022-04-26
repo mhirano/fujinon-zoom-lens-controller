@@ -40,7 +40,7 @@ bool EngineOffline::run() {
     worker = std::thread([this] {
         workerStatus.store(WORKER_STATUS::RUNNING);
 
-		ZoomLensController zlc(appMsg);
+		FujinonZoomLensController zlc(appMsg);
 		zlc.run();
 
         workerStatus.store(WORKER_STATUS::IDLE);

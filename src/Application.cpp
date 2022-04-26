@@ -208,7 +208,7 @@ bool Application::run(){
 
 			{
 				ImGui::Text("Control");
-				ZoomLensControllerUtil zlcUtil(appMsg);
+				FujinonZoomLensControllerUtil zlcUtil(appMsg);
 
 				// zoom
 				{
@@ -243,25 +243,25 @@ bool Application::run(){
 								item_current_idx_F = n;
 
 								if (items_F[item_current_idx_F] == "OPEN") {
-									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::OPEN);
+									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::OPEN);
 								}
 								else if (items_F[item_current_idx_F] == "F4") {
-									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::F4);
+									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F4);
 								}
 								else if (items_F[item_current_idx_F] == "F5.6") {
-									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::F5_6);
+									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F5_6);
 								}
 								else if (items_F[item_current_idx_F] == "F8") {
-									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::F8);
+									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F8);
 								}
 								else if (items_F[item_current_idx_F] == "F11") {
-									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::F11);
+									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F11);
 								}
 								else if (items_F[item_current_idx_F] == "F16") {
-									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::F16);
+									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::F16);
 								}
 								else if (items_F[item_current_idx_F] == "CLOSE") {
-									zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::CLOSE);
+									zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::CLOSE);
 								}
 							}
 
@@ -288,10 +288,10 @@ bool Application::run(){
 								item_current_idx_filter = n;
 
 								if (items_filter[item_current_idx_filter] == "FILTER_CLEAR") {
-									zlcUtil.setFilter(ZoomLensControllerUtil::ZOOM_LENS_FILTER::FILTER_CLEAR);
+									zlcUtil.setFilter(FujinonZoomLensControllerUtil::ZOOM_LENS_FILTER::FILTER_CLEAR);
 								}
 								else if (items_filter[item_current_idx_filter] == "VISIBLE_LIGHT_CUT_FILTER") {
-									zlcUtil.setFilter(ZoomLensControllerUtil::ZOOM_LENS_FILTER::VISIBLE_LIGHT_CUT_FILTER);
+									zlcUtil.setFilter(FujinonZoomLensControllerUtil::ZOOM_LENS_FILTER::VISIBLE_LIGHT_CUT_FILTER);
 								}
 							}
 
@@ -318,10 +318,10 @@ bool Application::run(){
 								item_current_idx_iris = n;
 
 								if (items_iris[item_current_idx_iris] == "REMOTE") {
-									zlcUtil.setIrisMode(ZoomLensControllerUtil::ZOOM_LENS_IRIS::REMOTE);
+									zlcUtil.setIrisMode(FujinonZoomLensControllerUtil::ZOOM_LENS_IRIS::REMOTE);
 								}
 								else if (items_iris[item_current_idx_iris] == "AUTO") {
-									zlcUtil.setIrisMode(ZoomLensControllerUtil::ZOOM_LENS_IRIS::AUTO);
+									zlcUtil.setIrisMode(FujinonZoomLensControllerUtil::ZOOM_LENS_IRIS::AUTO);
 								}
 							}
 

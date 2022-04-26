@@ -12,10 +12,10 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 
-class ZoomLensController {
+class FujinonZoomLensController {
 public:
 
-	ZoomLensController(AppMsgPtr _appMsg) :appMsg(_appMsg) {};
+	FujinonZoomLensController(AppMsgPtr _appMsg) :appMsg(_appMsg) {};
 
 	bool run() {
 		const char *PORT = "COM1";
@@ -220,9 +220,9 @@ private:
 
 
 /*
- * Helper class to use ZoomLensController
+ * Helper class to use FujinonZoomLensController
  */
-class ZoomLensControllerUtil {
+class FujinonZoomLensControllerUtil {
     std::vector<std::pair<float, float>> ZOOM_LUT = {
             {1.0, 0x0000},
             {1.1, 0x0800},
@@ -345,7 +345,7 @@ public:
     enum class ZOOM_LENS_IRIS{AUTO=0, REMOTE=1};
     enum class ZOOM_LENS_F{CLOSE=0, F16=1, F11=2, F8=3, F5_6=4, F4=5, OPEN=6};
 
-    ZoomLensControllerUtil(AppMsgPtr _appMsg): appMsg(_appMsg){};
+    FujinonZoomLensControllerUtil(AppMsgPtr _appMsg): appMsg(_appMsg){};
 
 
 	/**
@@ -466,7 +466,7 @@ public:
 
 	/* direct command */
 	void command(uchar code, std::vector<uchar> data) {
-		ZoomLensController::sanityCheck(code, data);
+		FujinonZoomLensController::sanityCheck(code, data);
 
 		auto md = appMsg->zlcRequestMessenger->prepareMsg();
 		md->code = code;
@@ -499,11 +499,11 @@ private:
     AppMsgPtr appMsg;
 };
 
-using ZLC = ZoomLensController;
-using ZLCUtil = ZoomLensControllerUtil;
+using FZLC = FujinonZoomLensController;
+using FZLCUtil = FujinonZoomLensControllerUtil;
 
 /*
- * Test for ZoomLensController and ZoomLensControllerUtil
+ * Test for FujinonZoomLensController and FujinonZoomLensControllerUtil
  */
 class ZoomLensControllerTest {
 public:
@@ -514,7 +514,7 @@ public:
 	 * Check if command is generated correctly.
 	 */
     bool run() {
-        ZLCUtil zlcUtil(appMsg);
+        FZLCUtil zlcUtil(appMsg);
 
         /*
          * interp
@@ -535,11 +535,11 @@ public:
         /*
          * iris
          */
-        zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::CLOSE); // close
+        zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::CLOSE); // close
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         std::cout << "2 20 0 0 de (Expected output)" << std::endl;
 
-        zlcUtil.setF(ZoomLensControllerUtil::ZOOM_LENS_F::OPEN); // open
+        zlcUtil.setF(FujinonZoomLensControllerUtil::ZOOM_LENS_F::OPEN); // open
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         std::cout << "2 20 ff ff e0 (Expected output)" << std::endl;
 
