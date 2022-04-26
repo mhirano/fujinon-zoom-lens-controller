@@ -86,9 +86,6 @@
     <ClInclude Include="..\..\include\Utility.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\ZoomLensController.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\ThreadSafeQueue.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>

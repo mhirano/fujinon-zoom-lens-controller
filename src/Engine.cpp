@@ -6,7 +6,7 @@
 #include "AppMsg.h"
 #include "Config.h"
 #include "Logger.h"
-#include "ZoomLensController.h"
+#include "FujinonZoomLens.h"
 
 namespace Bench {
     template <typename TimeT = std::chrono::milliseconds, typename F>

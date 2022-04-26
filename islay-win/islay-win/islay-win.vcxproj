@@ -162,7 +162,6 @@
     <ClInclude Include="..\..\include\Logger.h" />
     <ClInclude Include="..\..\include\ThreadSafeQueue.h" />
     <ClInclude Include="..\..\include\Utility.h" />
-    <ClInclude Include="..\..\include\ZoomLensController.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

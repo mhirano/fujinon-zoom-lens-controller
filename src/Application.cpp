@@ -14,7 +14,7 @@
 #include "Logger.h"
 #include "Utility.h"
 
-#include "ZoomLensController.h"
+#include "FujinonZoomLens.h"
 
 Application::Application() {
 // Setup SDL
