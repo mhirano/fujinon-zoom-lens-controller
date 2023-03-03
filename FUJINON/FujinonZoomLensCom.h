@@ -23,7 +23,7 @@ public:
 		md->code = cmd.code;
 		md->data = cmd.data;
 		appMsg->zlcRequestMessenger->send();
-		std::cout << "sendinf from FujinonZoomLensClient" << std::endl;
+//		std::cout << "sendinf from FujinonZoomLensClient" << std::endl;
 	}
 };
 
@@ -85,8 +85,8 @@ public:
 
 		/* SEND COMMAND */
 		auto send_api_frame = FujinonZoomLensControllerUtil::encodeCommand(code, data);
-		for (auto i : send_api_frame) { std::cout << std::hex << (uint)i << " "; }
-		std::cout << std::dec << std::endl;
+//		for (auto i : send_api_frame) { std::cout << std::hex << (uint)i << " "; }
+//		std::cout << std::dec << std::endl;
 		port.write_some(boost::asio::buffer(send_api_frame));
 
 		/* RECEIVE COMMAND */

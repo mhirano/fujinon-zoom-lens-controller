@@ -158,10 +158,10 @@ namespace FujinonZoomLensControllerUtil {
 	 */
 	inline bool decodeCommand(const boost::array<uchar, 32> api_frame) {
 		// print frame
-		for (size_t i = 0; i < api_frame.size() - 1; ++i) {
-			std::cout << std::hex << static_cast<uint>(api_frame[i]) << " ";
-		}
-		std::cout << std::dec << std::endl;
+//		for (size_t i = 0; i < api_frame.size() - 1; ++i) {
+//			std::cout << std::hex << static_cast<uint>(api_frame[i]) << " ";
+//		}
+//		std::cout << std::dec << std::endl;
 
 		// retrieve data part
 		size_t length = static_cast<uint>(api_frame[0]);
